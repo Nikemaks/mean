@@ -34,7 +34,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     this.route.queryParams
       .pipe(takeUntil(this.destroyed$))
       .subscribe((params: Params) => {
-        if (params['register']) {
+        if (params['registered']) {
           // Теперь вы можете зайти используя свои данные
         }
         if (params['accessDenied']) {
