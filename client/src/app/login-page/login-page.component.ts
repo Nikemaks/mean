@@ -4,6 +4,7 @@ import {AuthService} from "../shared/services/auth.service";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ActivatedRoute, Params, Router} from "@angular/router";
+import {MaterialService} from "../shared/services/material.service";
 
 @Component({
   selector: 'app-login-page',
@@ -35,10 +36,10 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroyed$))
       .subscribe((params: Params) => {
         if (params['registered']) {
-          // Теперь вы можете зайти используя свои данные
+          MaterialService.toast('Теперь вы можете зайти используя свои данные');
         }
         if (params['accessDenied']) {
-          // Необходима авторизация
+          MaterialService.toast('Для начала авторизуйтесь в системе');
         }
       });
   }
@@ -51,7 +52,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       .subscribe(value => {
         this.router.navigate(['/overview'])
       }, error => {
-        console.warn(error);
+        MaterialService.toast(error.error.message);
         this.form.enable();
       })
   }
