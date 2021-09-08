@@ -37,8 +37,9 @@ module.exports.create = async (req, res) => {
     const category = await new Category({
         name: req.body.name,
         user: req.user.id,
-        imageSrc: req.file ? req.file.path : ''
+        imageSrc: req.body.file ? req.body.file.path : ''
     })
+    console.log(req.files);
     try {
         await category.save();
         res.status(201).json(category);
