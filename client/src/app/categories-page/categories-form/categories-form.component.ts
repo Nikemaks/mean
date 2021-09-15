@@ -1,9 +1,9 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Params, Route} from "@angular/router";
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Params, Route, Router} from "@angular/router";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {CategoriesService} from "../../shared/services/categories.service";
-import {switchMap} from "rxjs/operators";
-import {of} from "rxjs";
+import {switchMap, takeUntil} from "rxjs/operators";
+import {of, Subject} from "rxjs";
 import {MaterialService} from "../../shared/services/material.service";
 import {Category} from "../../shared/interfaces";
 
@@ -12,7 +12,7 @@ import {Category} from "../../shared/interfaces";
   templateUrl: './categories-form.component.html',
   styleUrls: ['./categories-form.component.css']
 })
-export class CategoriesFormComponent implements OnInit {
+export class CategoriesFormComponent implements OnInit, OnDestroy {
 
   @ViewChild('input') inputRef: ElementRef | undefined;
 
@@ -20,14 +20,21 @@ export class CategoriesFormComponent implements OnInit {
   image: File | undefined;
   imagePreview: any = '';
   category: Category | undefined;
+  destroyed$: Subject<any> = new Subject<any>();
   form: FormGroup = this.fb.group({
     name: new FormControl(null, [Validators.required])
   })
 
   constructor(private route: ActivatedRoute,
               private fb: FormBuilder,
-              private categoriesService: CategoriesService) {
+              private categoriesService: CategoriesService,
+              private router: Router) {
   }
+
+  ngOnDestroy(): void {
+        this.destroyed$.next();
+        this.destroyed$.complete();
+    }
 
   ngOnInit(): void {
     this.form.disable();
@@ -95,5 +102,19 @@ export class CategoriesFormComponent implements OnInit {
     }
 
     reader.readAsDataURL(file);
+  }
+
+  deleteCategory() {
+    const decision = window.confirm(`Вы уверены что хотите удалить категорию ${this.category?.name}?`);
+
+    if (decision) {
+      this.categoriesService.delete(this.category?._id)
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe(
+          res => MaterialService.toast(res.message),
+          err => MaterialService.toast(err.message),
+          () => this.router.navigate(['/categories'])
+        )
+    }
   }
 }

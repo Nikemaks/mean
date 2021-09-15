@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Category} from "../interfaces";
+import {Category, Message} from "../interfaces";
 import {Observable} from "rxjs";
 
 @Injectable({
@@ -38,5 +38,7 @@ export class CategoriesService {
     return this.http.patch<Category>(`/api/category/${id}`, formData)
   }
 
-
+  delete(id?: string): Observable<Message> {
+    return this.http.delete<Message>(`/api/category/${id}`)
+  }
 }
