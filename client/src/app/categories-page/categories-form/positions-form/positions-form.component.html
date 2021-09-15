@@ -17,10 +17,10 @@
            *ngFor="let position of positions"
         >
         <span>
-           {{position.name}}<strong>{{position.cost}} руб.</strong>
+           {{position.name}}<strong> {{position.cost}} $</strong>
         </span>
           <span>
-          <i class="material-icons">delete</i>
+          <i class="material-icons" (click)="onDeletePosition($event, position)">delete</i>
         </span>
         </a>
       </div>
@@ -31,27 +31,59 @@
     <ng-template #loader>
       <app-loader></app-loader>
     </ng-template>
-    </div>
+  </div>
 </div>
 
 
-<div class="modal" #modal>
-  <div class="modal-content">
-    <h4 class="mb1">Добавить позицию</h4>
-    <div class="input-field">
-      <input id="pos-name" type="text" required>
-      <label for="pos-name">Название</label>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="modal" #modal>
+    <div class="modal-content">
+      <h4 class="mb1">Добавить позицию</h4>
+      <div class="input-field">
+        <input
+          formControlName="name"
+          [ngClass]="{'invalid': form.get('name')?.invalid && form.get('name')?.touched}"
+          id="pos-name"
+          type="text"
+        >
+        <label for="pos-name">Название</label>
+        <span
+          *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+          [ngClass]="{'invalid': form.get('name')?.invalid && form.get('name')?.touched}"
+          class="helper-text red-text">
+          Название не должно быть пустым.
+        </span>
+      </div>
+      <div class="input-field">
+        <input
+          formControlName="cost"
+          id="pos-cost"
+          type="number"
+          min="1"
+          [ngClass]="{'invalid': form.get('cost')?.invalid && form.get('cost')?.touched}"
+        >
+        <label for="pos-cost">Цена</label>
+        <span
+          *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+          [ngClass]="{'invalid': form.get('cost')?.invalid && form.get('cost')?.touched}"
+          class="helper-text red-text">
+          Введите коректную цену.
+        </span>
+      </div>
     </div>
-    <div class="input-field">
-      <input id="pos-cost" type="text" required>
-      <label for="pos-cost">Цена</label>
+    <div class="modal-footer">
+      <button class="modal-action waves-effect waves-black btn-flat"
+              type="button"
+              [disabled]="form.disabled"
+              (click)="onCancel()"
+      >Отмена
+      </button>
+      <button
+        type="submit"
+        class="modal-action btn waves-effect"
+        [disabled]="form.disabled || form.invalid"
+      >Сохранить
+      </button>
     </div>
   </div>
-  <div class="modal-footer">
-    <button class="modal-action waves-effect waves-black btn-flat"
-            type="button"
-            (click)="onCancel()"
-    >Отмена</button>
-    <button class="modal-action btn waves-effect">Сохранить</button>
-  </div>
-</div>
+</form>

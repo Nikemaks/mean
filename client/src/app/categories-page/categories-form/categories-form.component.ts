@@ -19,7 +19,7 @@ export class CategoriesFormComponent implements OnInit, OnDestroy {
   isNew = true;
   image: File | undefined;
   imagePreview: any = '';
-  category: Category | undefined;
+  category: Category  = {name: ""};
   destroyed$: Subject<any> = new Subject<any>();
   form: FormGroup = this.fb.group({
     name: new FormControl(null, [Validators.required])
