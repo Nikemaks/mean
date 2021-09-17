@@ -1,6 +1,8 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd, Router} from "@angular/router";
 import {MaterialInstance, MaterialService} from "../shared/services/material.service";
+import {OrderService} from "../shared/services/order.service";
+import {OrderPosition} from "../shared/interfaces";
 
 @Component({
   selector: 'app-order-page',
@@ -14,7 +16,8 @@ export class OrderPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   isRoot: boolean = true;
 
-  constructor(private router: Router) {
+  constructor(private router: Router,
+              public order: OrderService) {
   }
 
   ngAfterViewInit(): void {
@@ -43,5 +46,9 @@ export class OrderPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   submit() {
     this.modal.close();
+  }
+
+  removePosition(item: OrderPosition) {
+    this.order.remove(item);
   }
 }
