@@ -3,7 +3,7 @@ import {MaterialInstance, MaterialService} from "../shared/services/material.ser
 import {OrdersService} from "../shared/services/orders.service";
 import {Subject} from "rxjs/internal/Subject";
 import {takeUntil} from "rxjs/operators";
-import {Order} from "../shared/interfaces";
+import {Filter, Order} from "../shared/interfaces";
 
 const STEP = 2;
 
@@ -23,6 +23,7 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   reloading = false;
   noMoreOrders = false;
+  filter: Filter = {};
 
   offset = 0;
   limit = STEP;
@@ -37,11 +38,10 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private fetch() {
     this.loading = true;
-    const params = {
+    const params = Object.assign({}, this.filter, {
       offset: this.offset,
       limit: this.limit
-    };
-
+    });
     this.ordersService.fetch(params)
       .pipe(takeUntil(this.destroyed$))
       .subscribe(orders => {
@@ -49,7 +49,7 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.noMoreOrders = orders.length < STEP;
         this.loading = false;
         this.reloading = false;
-    });
+      });
   }
 
   ngAfterViewInit(): void {
@@ -65,5 +65,18 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
   loadMore() {
     this.offset += STEP;
     this.fetch();
+  }
+
+  applyFilter(filter: Filter) {
+    this.orders = [];
+    this.offset = 0;
+    this.reloading = true;
+    this.filter = filter;
+
+    this.fetch();
+  }
+
+  isFiltered(): boolean {
+    return Object.keys(this.filter).length !== 0;
   }
 }
