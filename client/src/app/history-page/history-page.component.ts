@@ -1,5 +1,11 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MaterialInstance, MaterialService} from "../shared/services/material.service";
+import {OrdersService} from "../shared/services/orders.service";
+import {Subject} from "rxjs/internal/Subject";
+import {takeUntil} from "rxjs/operators";
+import {Order} from "../shared/interfaces";
+
+const STEP = 2;
 
 @Component({
   selector: 'app-history-page',
@@ -11,11 +17,39 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('tooltip') tooltipRef!: ElementRef;
   tooltip!: MaterialInstance;
   isFilterVisible = false;
+  destroyed$ = new Subject();
+  orders: Order[] = [];
 
-  constructor() {
+  loading = false;
+  reloading = false;
+  noMoreOrders = false;
+
+  offset = 0;
+  limit = STEP;
+
+  constructor(private ordersService: OrdersService) {
   }
 
   ngOnInit(): void {
+    this.reloading = true;
+    this.fetch();
+  }
+
+  private fetch() {
+    this.loading = true;
+    const params = {
+      offset: this.offset,
+      limit: this.limit
+    };
+
+    this.ordersService.fetch(params)
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(orders => {
+        this.orders = this.orders.concat(orders);
+        this.noMoreOrders = orders.length < STEP;
+        this.loading = false;
+        this.reloading = false;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -24,6 +58,12 @@ export class HistoryPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.tooltip.destroy();
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
+  loadMore() {
+    this.offset += STEP;
+    this.fetch();
+  }
 }
