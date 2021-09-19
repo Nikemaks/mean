@@ -13,7 +13,7 @@ module.exports.overview = async (req, res) => {
         const totalOrdersNumber = ordersMap.length;
         const daysNumber = Object.keys(ordersMap).length;
         const ordersPerDay = (totalOrdersNumber / daysNumber).toFixed(0);
-        const ordersPrecent = (((yesterdayOrdersNumber / ordersPerDay) - 1) * 100).toFixed(2);
+        const ordersPercent = (((yesterdayOrdersNumber / ordersPerDay) - 1) * 100).toFixed(2);
         const totalGain = calculatePrice(allOrders);
         const gainPerDay = totalGain / daysNumber;
         const yesterdayGain = calculatePrice(yesterdayOrders);
@@ -31,10 +31,10 @@ module.exports.overview = async (req, res) => {
                 isHigher: +gainPercent > 0
             },
             orders: {
-                percent: Math.abs(+ordersPrecent),
+                percent: Math.abs(+ordersPercent),
                 compare: Math.abs(+compareNumber),
                 yesterday: +yesterdayOrders,
-                isHigher: +ordersPrecent > 0
+                isHigher: +ordersPercent > 0
             }
         })
 
